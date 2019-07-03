@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.1.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.1.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.1.xsd">
+ 	<!--使用下面的mvc:annotation-driven可以代替上面的注解映射器和注解适配器-->
+    <mvc:resources mapping="/static/**" location="/static/" />
+ 	<!-- 依赖注入 -->
+<!--自定义消息转换器的编码,解决后台传输json回前台时，中文乱码问题
+    <mvc:annotation-driven >
+        <mvc:message-converters register-defaults="true">
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter" >
+                <property name = "supportedMediaTypes">
+                    <list>
+                        <value>application/json;charset=UTF-8</value>
+                        <value>text/html;charset=UTF-8</value>
+                        <value>application/x-www-form-urlencoded</value>
+                    </list>
+                </property>
+            </bean>
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter" ></bean>
+        </mvc:message-converters>
+        
+    </mvc:annotation-driven>-->
+    <mvc:annotation-driven> 
+    <!-- 返回utf-8的字符串，否则中文乱码  这里要放在 <context:component-scan 后面，不然不起作用-->
+    <mvc:message-converters register-defaults="true">  
+      <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+        <constructor-arg value="UTF-8"/>  
+        <property name="writeAcceptCharset" value="false"/>
+      </bean>  
+    </mvc:message-converters>
+   </mvc:annotation-driven> 
+    <context:component-scan base-package="com"></context:component-scan>
+	<!-- 配置视图解析器 -->
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+    	<property name="contentType" value="text/html"></property> 
+		<property name="prefix" value="/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+	
+	<bean  id="dataSource2" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<!--可以写成配置文件 -->
+		<property name="driverClass" value="com.mysql.jdbc.Driver" />
+		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/recruitment?characterEncoding=UTF-8" />
+		<property name="user" value="root" />
+		<property name="password" value="root" />
+		<property name="minPoolSize" value="1" />
+		<property name="maxPoolSize" value="2" />
+	</bean>
+	<!-- 调用链接数据库 -->
+	<bean id="sqlSession1" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource2" />
+		<property name="MapperLocations"
+			value="classpath:com/recruit/mapping/*.xml" />
+			<!-- mybatis配置文件在src下 -->
+	</bean>
+	
+	 <!-- 按指定包和注解标记扫描Mapper  -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="sqlSessionFactory" ref="sqlSession1" />
+		<property name="basePackage" value="com.recruit.mapper" />		
+	</bean>
+	<!-- 
+	 开启事务注解扫描 
+	<bean id="txManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource2" />
+	</bean>
+	<tx:annotation-driven transaction-manager="txManager" proxy-target-class="true" />
+	<aop:aspectj-autoproxy proxy-target-class="true" />
+	
+	
+		 上传文件 
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		/*限制上传文件大小1024为1k*/ 
+		<property name="maxUploadSize" value="5120000"></property>
+		/*将异常推迟到控制器中去处理*/ 
+		<property name="resolveLazily" value="true" />
+	</bean>
+	-->
+	<mvc:interceptors> 
+		<!--  登录检查拦截器  -->
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<mvc:exclude-mapping path="/*.do" />
+			<mvc:exclude-mapping path="/static/**" />
+			<bean class="com.recruit.interceptor.LoginInterceptor" />
+		</mvc:interceptor>
+	</mvc:interceptors> 
+</beans>

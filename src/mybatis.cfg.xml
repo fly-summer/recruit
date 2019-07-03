@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+
+       Copyright 2009-2016 the original author or authors.
+
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+
+-->
+<!DOCTYPE configuration
+    PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+  <!-- 数据库配置文件 -->
+  <properties resource="mysql.properties"/>
+   <settings>
+        <setting name="logImpl" value="STDOUT_LOGGING" />
+  </settings>
+  <!-- 
+  	实体类的别名 
+  <typeAliases>
+    <package name="com.ss.entities"/>
+  </typeAliases>
+  -->
+<!-- 配置mybatis环境 -->
+  <environments default="development">
+    <environment id="development">
+      <transactionManager type="JDBC">
+                             <!-- <property name="" value=""/> 标准文件中这条没用到先注释掉-->
+      </transactionManager>
+      <dataSource type="POOLED">
+        <property name="driver" value="${jdbc.driverClassName}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+      </dataSource>
+    </environment>
+  </environments>
+
+ <!-- 先注释掉后面用到再加进来
+  <mappers>
+    <mapper resource="com/ss/mappers/GoodsMapper.xml"/>
+  </mappers>
+  另一种指定包
+  <package name="com/ss/mappers">
+ -->
+ <!-- 配置映射文件      一个一个配置 -->
+ <mappers>
+  <mapper resource="com/recruit/mapping/UserMapper.xml"/>
+  <mapper resource="com/recruit/mapping/RecruitMapper.xml"/>
+    <!-- <package name="com.ggg"/> -->
+ </mappers>
+</configuration>
